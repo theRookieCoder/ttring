@@ -1,0 +1,7 @@
+[project]
+name = "ttring"
+version = "0.1.0"
+description = "Rings the bell"
+# readme = "README.md"
+requires-python = ">=3.7"
+dependencies = ["textual>=0.43.2"]
