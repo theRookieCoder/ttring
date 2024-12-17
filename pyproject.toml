@@ -2,6 +2,5 @@
 name = "ttring"
 version = "0.1.0"
 description = "Rings the bell"
-# readme = "README.md"
 requires-python = ">=3.7"
-dependencies = ["textual>=0.43.2"]
+dependencies = ["mysql-connector>=2.2.9", "ruff>=0.8.3", "tabulate>=0.9.0"]
