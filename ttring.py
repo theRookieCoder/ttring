@@ -18,8 +18,8 @@ def main():
 
     init_db()
 
-    try:
-        while True:
+    while True:
+        try:
             print("\n" + "=" * 7, "TTRING", "=" * 7)
 
             print("1. Begin Service")
@@ -29,7 +29,7 @@ def main():
             print("5. Delete a Schedule")
             print("6. Save and Quit")
 
-            choice = input("Enter your option: ")
+            choice = input("\nEnter your option: ").strip()
 
             if choice == "1":
                 print("Service is not implemented!")
@@ -41,19 +41,27 @@ def main():
                 print("Editing schedules is not implemented!")
 
             elif choice == "4":
-                print("Creating schedules is not implemented!")
+                create_schedule()
 
             elif choice == "5":
                 id = pick_schedule()
-                # Handle None case
+                if id == None:
+                    print("Action cancelled")
+
                 delete_schedule(id)
+            
+            elif choice == "6":
+                db.commit()
+                print("Bye.")
+                return
 
             else:
                 print("Invalid choice")
 
-    except KeyboardInterrupt:
-        db.commit()
-        print("\nBye.")
+        except KeyboardInterrupt:
+            opt = input("\n\nQuit without saving? ")
+            if opt.lower() == 'y':
+                return
 
 
 def delete_schedule(id: int):
@@ -81,6 +89,29 @@ def pick_schedule() -> int | None:
             return id
     else:
         return None
+
+
+def create_schedule():
+    name = input("Enter schedule name: ")
+    start_time = input("Schedule start time (HH:MM:SS): ")
+    cursor.execute("INSERT INTO schedule(name, start_time) VALUE (%s, %s)", (name, start_time))
+    cursor.execute("SELECT id FROM schedule WHERE name=%s", (name,)) # TODO
+    schedule_id: int = cursor.fetchone()[0]
+
+    opt = input("Do you want to add periods now? ").strip()
+    if opt.lower() !=  'y':
+        return
+    
+    cursor.execute("SELECT * FROM rings")
+    rings: (str, int) = cursor.fetchall()
+    
+    period_order = 0
+    while input("Add a period? ").strip().lower() == 'y':
+        period_order += 1
+        name = input("Name: ").strip()
+        duration = int(input("Duration (in minutes): "))
+        ring_type = rings[0][0] # TODO selection
+        cursor.execute("INSERT INTO periods VALUE (%i, %i, %i, %s, %s)", (schedule_id, period_order, duration, name, ring_type))
 
 
 def display_schedules():
@@ -131,7 +162,7 @@ def init_db():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS schedule (
-            id INT PRIMARY KEY,
+            id INT PRIMARY KEY AUTO_INCREMENT,
             name VARCHAR(50),
             start_time TIME
         )
@@ -154,3 +185,4 @@ def init_db():
 
 if __name__ == "__main__":
     main()
+    db.close()
