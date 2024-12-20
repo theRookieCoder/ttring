@@ -1,13 +1,14 @@
 import mysql.connector as sql
+from mysql.connector.cursor import MySQLCursor
 from tabulate import tabulate
+import os
 
 db = sql.connect(
     host="localhost",
-    user="root",
-    password="root",
+    user=os.environ["MYSQL_USER"],
+    password=os.environ["MYSQL_PASSWORD"],
 )
-cursor = db.cursor()
-
+cursor: MySQLCursor = db.cursor()  # type: ignore
 
 PROG_NAME = "ttring"
 VERSION = "0.1.0"
