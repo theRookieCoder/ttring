@@ -5,8 +5,8 @@ import os
 
 db = sql.connect(
     host="localhost",
-    user=os.environ["MYSQL_USER"],
-    password=os.environ["MYSQL_PASSWORD"],
+    user=os.environ.get("MYSQL_USER", os.getlogin()),
+    password=os.environ.get("MYSQL_PASSWORD", ""),
 )
 cursor: MySQLCursor = db.cursor()  # type: ignore
 
@@ -46,11 +46,11 @@ def main():
 
             elif choice == "5":
                 id = pick_schedule()
-                if id == None:
+                if id is None:
                     print("Action cancelled")
 
                 delete_schedule(id)
-            
+
             elif choice == "6":
                 db.commit()
                 print("Bye.")
@@ -59,9 +59,9 @@ def main():
             else:
                 print("Invalid choice")
 
-        except KeyboardInterrupt:
+        except KeyboardInterrupt or EOFError:
             opt = input("\n\nQuit without saving? ")
-            if opt.lower() == 'y':
+            if opt.lower() == "y":
                 return
 
 
@@ -95,24 +95,29 @@ def pick_schedule() -> int | None:
 def create_schedule():
     name = input("Enter schedule name: ")
     start_time = input("Schedule start time (HH:MM:SS): ")
-    cursor.execute("INSERT INTO schedule(name, start_time) VALUE (%s, %s)", (name, start_time))
-    cursor.execute("SELECT id FROM schedule WHERE name=%s", (name,)) # TODO
+    cursor.execute(
+        "INSERT INTO schedule(name, start_time) VALUE (%s, %s)", (name, start_time)
+    )
+    cursor.execute("SELECT id FROM schedule WHERE name=%s", (name,))  # TODO
     schedule_id: int = cursor.fetchone()[0]
 
     opt = input("Do you want to add periods now? ").strip()
-    if opt.lower() !=  'y':
+    if opt.lower() != "y":
         return
-    
+
     cursor.execute("SELECT * FROM rings")
-    rings: (str, int) = cursor.fetchall()
-    
+    rings: list[tuple[str, int]] = cursor.fetchall()
+
     period_order = 0
-    while input("Add a period? ").strip().lower() == 'y':
+    while input("Add a period? ").strip().lower() == "y":
         period_order += 1
         name = input("Name: ").strip()
         duration = int(input("Duration (in minutes): "))
-        ring_type = rings[0][0] # TODO selection
-        cursor.execute("INSERT INTO periods VALUE (%i, %i, %i, %s, %s)", (schedule_id, period_order, duration, name, ring_type))
+        ring_type = rings[0][0]  # TODO selection
+        cursor.execute(
+            "INSERT INTO periods VALUE (%i, %i, %i, %s, %s)",
+            (schedule_id, period_order, duration, name, ring_type),
+        )
 
 
 def display_schedules():
