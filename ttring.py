@@ -48,8 +48,9 @@ def main():
                 id = pick_schedule()
                 if id is None:
                     print("Action cancelled")
-                else:
-                    delete_schedule(id)
+                    continue
+
+                delete_schedule(id)
 
             elif choice == "6":
                 db.commit()
