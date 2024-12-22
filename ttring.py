@@ -48,8 +48,8 @@ def main():
                 id = pick_schedule()
                 if id is None:
                     print("Action cancelled")
-
-                delete_schedule(id)
+                else:
+                    delete_schedule(id)
 
             elif choice == "6":
                 db.commit()
@@ -60,8 +60,13 @@ def main():
                 print("Invalid choice")
 
         except KeyboardInterrupt or EOFError:
-            opt = input("\n\nQuit without saving? ")
-            if opt.lower() == "y":
+            try:
+                opt = input("\n\nQuit without saving? ")
+                if opt.lower() == "y":
+                    print("Bye.")
+                    return
+            except KeyboardInterrupt:
+                print("\nBye.")
                 return
 
 
