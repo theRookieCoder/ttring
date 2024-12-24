@@ -21,7 +21,8 @@ def main():
 
     while True:
         try:
-            print("\n" + "=" * 7, "TTRING", "=" * 7)
+            # term_clear()
+            print("=" * 7, "TTRING", "=" * 7)
 
             print("1. Begin Service")
             print("2. View Schedules")
@@ -80,7 +81,7 @@ def delete_schedule(id: int):
 
 def pick_schedule() -> int | None:
     cursor.execute("SELECT id, name FROM schedule")
-    schedules = cursor.fetchall()
+    schedules: list[tuple[int, str]] = cursor.fetchall()
 
     print("\nSchedules")
     for id, name in schedules:
