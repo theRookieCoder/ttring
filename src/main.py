@@ -1,36 +1,37 @@
 import mysql.connector as sql
 from mysql.connector.cursor import MySQLCursor
-from survey import routines as tui  # type: ignore
-from survey._widgets import Escape  # type: ignore
+from survey import routines as tui
+from survey._widgets import Escape
 import os
 
-from init_db import init_db
-from create_schedule import create_schedule
-from display_schedules import display_schedules
+import init_db
+import create_schedule
+import display_schedules
 from service import serve
+
+
+PROG_NAME = "ttring"
+VERSION = "0.2.0"
 
 db = sql.connect(
     host="localhost",
     user=os.environ.get("MYSQL_USER", os.getlogin()),
     password=os.environ.get("MYSQL_PASSWORD", ""),
 )
-cursor: MySQLCursor = db.cursor()  # type: ignore
-
-PROG_NAME = "ttring"
-VERSION = "0.2.0"
+cursor: MySQLCursor = db.cursor()
 
 
 def main():
     print(f"{PROG_NAME} version {VERSION}")
 
-    init_db()
+    init_db.init_db(cursor)
 
     while True:
         try:
             print()
             print("=" * 7, "TTRING", "=" * 7)
 
-            choice: int = tui.select(  # type: ignore
+            choice: int = tui.select(
                 "Select an action: ",
                 options=[
                     "Begin Service",
@@ -43,16 +44,21 @@ def main():
             )
 
             if choice == 0:
-                serve()
+                id = pick_schedule()
+
+                if id is not None:
+                    serve(cursor, id)
+                else:
+                    print("Action cancelled")
 
             elif choice == 1:
-                display_schedules()
+                display_schedules.display_schedules(cursor)
 
             elif choice == 2:
                 print("Editing schedules is not implemented!")
 
             elif choice == 3:
-                create_schedule()
+                create_schedule.create_schedule(cursor)
 
             elif choice == 4:
                 id = pick_schedule()
@@ -69,13 +75,10 @@ def main():
                 db.commit()
                 return
 
-            else:
-                print("Invalid choice")
-
         except Escape or KeyboardInterrupt or EOFError:
             print()
             try:
-                if tui.inquire("Quit without saving? ", default=True):  # type: ignore
+                if tui.inquire("Quit without saving? ", default=True):
                     return
             except Escape or KeyboardInterrupt or EOFError:
                 print("\nDiscarded changes")
@@ -84,10 +87,10 @@ def main():
 
 def pick_schedule() -> int | None:
     cursor.execute("SELECT id, name FROM schedule")
-    schedules: list[tuple[int, str]] = cursor.fetchall()  # type: ignore
+    schedules: list[tuple[int, str]] = cursor.fetchall()
 
     try:
-        i: int = tui.select(  # type: ignore
+        i: int = tui.select(
             "Pick a schedule: ", options=[name for _id, name in schedules]
         )
         return schedules[i][0]

@@ -1,7 +1,8 @@
-from main import cursor, PROG_NAME
+from mysql.connector.cursor import MySQLCursor
+from main import PROG_NAME
 
 
-def init_db():
+def init_db(cursor: MySQLCursor):
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {PROG_NAME}")
     cursor.execute(f"USE {PROG_NAME}")
 

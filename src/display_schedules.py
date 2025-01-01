@@ -1,11 +1,10 @@
-from main import cursor
-
+from mysql.connector.cursor import MySQLCursor
 from tabulate import tabulate
 
 
-def display_schedules():
+def display_schedules(cursor: MySQLCursor):
     cursor.execute("SELECT * FROM schedule")
-    schedule_data: list[tuple[int, str, str]] = cursor.fetchall()  # type: ignore
+    schedule_data: list[tuple[int, str, str]] = cursor.fetchall()
     if schedule_data == []:
         print("No schedules configured!")
         return
@@ -23,7 +22,7 @@ def display_schedules():
             (id,),
         )
 
-        periods: list[tuple[str, str, int, int]] = cursor.fetchall()  # type: ignore
+        periods: list[tuple[str, str, int, int]] = cursor.fetchall()
         print(
             tabulate(
                 [
