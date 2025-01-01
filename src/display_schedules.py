@@ -1,16 +1,23 @@
 from mysql.connector.cursor import MySQLCursor
 from tabulate import tabulate
+from datetime import time, timedelta, datetime
+from rich import print
 
 
 def display_schedules(cursor: MySQLCursor):
     cursor.execute("SELECT * FROM schedule")
-    schedule_data: list[tuple[int, str, str]] = cursor.fetchall()
+    schedule_data: list[tuple[int, str, time]] = cursor.fetchall()
     if schedule_data == []:
         print("No schedules configured!")
         return
 
     for id, name, start_time in schedule_data:
-        print(f"\nSchedule {name} starts at {start_time}")
+        start_time = (
+            datetime.combine(datetime.now(), time(hour=0, minute=0)) + start_time
+        )
+        print(
+            f"\nSchedule [bold]{name}[/bold] starts at [yellow]{start_time.strftime("%H:%M")}]/yellow"
+        )
 
         cursor.execute(
             """
@@ -23,13 +30,20 @@ def display_schedules(cursor: MySQLCursor):
         )
 
         periods: list[tuple[str, str, int, int]] = cursor.fetchall()
+        time_acc = start_time
         print(
             tabulate(
                 [
-                    (name, f"{ring_name} ({ring_len} s)", f"{period_len} min")
+                    (
+                        name,
+                        f"{ring_name} ({ring_len} s)",
+                        f"{period_len} min",
+                        time_acc.strftime("%H:%M"),
+                        time_acc := time_acc + timedelta(minutes=period_len),
+                    )[:-1]
                     for name, ring_name, period_len, ring_len in periods
                 ],
-                ("Name", "Ring", "Duration"),
+                ("Name", "Ring", "Duration", "Time"),
                 tablefmt="rounded_outline",
             )
         )

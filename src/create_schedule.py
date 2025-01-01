@@ -1,21 +1,17 @@
 from mysql.connector.cursor import MySQLCursor
-from survey import routines as tui, widgets
+from survey import routines as tui
 from datetime import time
 
 
 def create_schedule(cursor: MySQLCursor):
-    data: dict[str, any] = tui.form(
-        "Enter Schedule Details ",
-        form={
-            "Name": widgets.Input(),
-            "Start time": widgets.DateTime(attrs=["hour", "minute"]),
-        },
+    print("Enter Schedule Details")
+    name: str = tui.input("Name: ")
+    start_time: time = (
+        tui.datetime("Start time: ", attrs=["hour", "minute"]).time().replace(second=0)
     )
-    name: str = data["Name"]
     if name == "":
         print("Name cannot be empty")
         return
-    start_time: time = data["Start time"].time()
     cursor.execute(
         "INSERT INTO schedule(name, start_time) VALUE (%s, %s) RETURNING id",
         (name, start_time.isoformat(timespec="seconds")),
@@ -30,7 +26,9 @@ def create_schedule(cursor: MySQLCursor):
         period_order += 1
         name: str = tui.input("Name: ").strip()
         duration: int = tui.numeric("Duration (in minutes): ", decimal=False)
-        i: int = tui.select("Choose ring type", options=[name for name, _len in rings])
+        i: int = tui.select(
+            "Choose ring type: ", options=[f"{name} ({len} s)" for name, len in rings]
+        )
         ring_type = rings[i][0]
         cursor.execute(
             "INSERT INTO periods VALUE (%s, %s, %s, %s, %s)",

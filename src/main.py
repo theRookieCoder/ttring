@@ -47,20 +47,24 @@ def main():
                 id = pick_schedule()
 
                 if id is not None:
+                    print()
                     serve(cursor, id)
                 else:
                     print("Action cancelled")
 
             elif choice == 1:
+                print()
                 display_schedules.display_schedules(cursor)
 
             elif choice == 2:
                 print("Editing schedules is not implemented!")
 
             elif choice == 3:
+                print()
                 create_schedule.create_schedule(cursor)
 
             elif choice == 4:
+                print()
                 id = pick_schedule()
 
                 if id is not None:
