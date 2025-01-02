@@ -5,7 +5,7 @@ from rich import print
 
 
 def display_schedules(cursor: MySQLCursor):
-    cursor.execute("SELECT * FROM schedule")
+    cursor.execute("SELECT id, name, start_time FROM schedules")
     schedule_data: list[tuple[int, str, time]] = cursor.fetchall()
     if schedule_data == []:
         print("No schedules configured!")
@@ -16,7 +16,7 @@ def display_schedules(cursor: MySQLCursor):
             datetime.combine(datetime.now(), time(hour=0, minute=0)) + start_time
         )
         print(
-            f"\nSchedule [bold]{name}[/bold] starts at [yellow]{start_time.strftime("%H:%M")}]/yellow"
+            f"\nSchedule [bold]{name}[/bold] starts at [yellow]{start_time.strftime("%H:%M")}[/yellow]"
         )
 
         cursor.execute(

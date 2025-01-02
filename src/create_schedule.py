@@ -13,12 +13,12 @@ def create_schedule(cursor: MySQLCursor):
         print("Name cannot be empty")
         return
     cursor.execute(
-        "INSERT INTO schedule(name, start_time) VALUE (%s, %s) RETURNING id",
+        "INSERT INTO schedules(name, start_time) VALUE (%s, %s) RETURNING id",
         (name, start_time.isoformat(timespec="seconds")),
     )
     schedule_id: int = cursor.fetchone()[0]
 
-    cursor.execute("SELECT * FROM rings")
+    cursor.execute("SELECT name, duration FROM rings")
     rings: list[tuple[str, int]] = cursor.fetchall()
 
     period_order = 0

@@ -22,23 +22,23 @@ def init_db(cursor: MySQLCursor):
         """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS schedule (
-            id          INT  PRIMARY KEY AUTO_INCREMENT,
-            name        VARCHAR(50),
-            start_time  TIME
+        CREATE TABLE IF NOT EXISTS schedules (
+            id          INT          PRIMARY KEY AUTO_INCREMENT,
+            name        VARCHAR(50)  NOT NULL,
+            start_time  TIME         NOT NULL
         )
     """)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS periods (
-            schedule_id   INT NOT NULL,
-            period_order  INT NOT NULL,
-            duration      INT NOT NULL,
+            schedule_id   INT          NOT NULL,
+            period_order  INT          NOT NULL,
+            duration      INT          NOT NULL,
             period_name   VARCHAR(50),
-            ring_type     VARCHAR(20),
-            
+            ring_type     VARCHAR(20)  NOT NULL,
+
             FOREIGN KEY (ring_type) REFERENCES rings(name),
-            FOREIGN KEY (schedule_id) REFERENCES schedule(id),
+            FOREIGN KEY (schedule_id) REFERENCES schedules(id),
             PRIMARY KEY (schedule_id, period_order)
         )
     """)

@@ -3,6 +3,7 @@ from mysql.connector.cursor import MySQLCursor
 from survey import routines as tui
 from survey._widgets import Escape
 import os
+from rich import print
 
 import init_db
 import create_schedule
@@ -29,7 +30,7 @@ def main():
     while True:
         try:
             print()
-            print("=" * 7, "TTRING", "=" * 7)
+            print("[red]=[/red]" * 7, "[bold]TTRING[/bold]", "[red]=[/red]" * 7)
 
             choice: int = tui.select(
                 "Select an action: ",
@@ -69,7 +70,7 @@ def main():
 
                 if id is not None:
                     cursor.execute("DELETE FROM periods WHERE schedule_id = %s", (id,))
-                    cursor.execute("DELETE FROM schedule WHERE id = %s", (id,))
+                    cursor.execute("DELETE FROM schedules WHERE id = %s", (id,))
                     print("Successfully deleted")
 
                 else:
@@ -90,7 +91,7 @@ def main():
 
 
 def pick_schedule() -> int | None:
-    cursor.execute("SELECT id, name FROM schedule")
+    cursor.execute("SELECT id, name FROM schedules")
     schedules: list[tuple[int, str]] = cursor.fetchall()
 
     try:

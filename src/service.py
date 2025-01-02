@@ -16,7 +16,7 @@ log = logging.getLogger("ttring")
 def serve(cursor: MySQLCursor, id: int):
     logging.info("Starting service")
 
-    cursor.execute("SELECT name, start_time FROM schedule WHERE id = %s", (id,))
+    cursor.execute("SELECT name, start_time FROM schedules WHERE id = %s", (id,))
     row = cursor.fetchone()
     schedule_name: str = row[0]
     start_time: datetime = (
@@ -52,7 +52,7 @@ def serve(cursor: MySQLCursor, id: int):
                 Timer(
                     del_t.total_seconds(),
                     ring,
-                    max(ring_dur, periods[i + 1][2]),
+                    max(ring_dur, periods[i + 1][2] or 0),
                     name,
                 )
             )
