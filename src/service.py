@@ -4,6 +4,7 @@ from rich.logging import RichHandler
 from mysql.connector.cursor import MySQLCursor
 from threading import Timer
 from datetime import datetime, timedelta, time
+from survey import routines as tui
 
 logging.basicConfig(
     level="NOTSET",
@@ -73,7 +74,15 @@ def serve(cursor: MySQLCursor, id: int):
         logging.error("No timers were registered")
         return
 
-    sleep((time_acc - datetime.now()).total_seconds() + 5)
+    while True:
+        try:
+            sleep((time_acc - datetime.now()).total_seconds() + 5)
+            return
+        except KeyboardInterrupt:
+            if tui.inquire("Stop service? ", default=True):
+                for timer in timers:
+                    timer.cancel()
+                return
 
 
 def ring(time_s: int, name: str):
