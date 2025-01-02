@@ -38,7 +38,7 @@ def display_schedules(cursor: MySQLCursor):
                         name,
                         f"{ring_name} ({ring_len} s)",
                         f"{period_len} min",
-                        time_acc.strftime("%H:%M"),
+                        f"{time_acc.strftime("%H:%M")} - {(time_acc + timedelta(minutes=period_len)).strftime("%H:%M")}",
                         time_acc := time_acc + timedelta(minutes=period_len),
                     )[:-1]
                     for name, ring_name, period_len, ring_len in periods

@@ -94,6 +94,9 @@ def main():
 def pick_schedule() -> int | None:
     cursor.execute("SELECT id, name FROM schedules")
     schedules: list[tuple[int, str]] = cursor.fetchall()
+    if schedules == []:
+        print("No schedules configured")
+        return None
 
     try:
         i: int = tui.select(

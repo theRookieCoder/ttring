@@ -12,11 +12,13 @@ def init_db(cursor: MySQLCursor):
             duration  INT          NOT NULL
         )
     """)
+    # Check if there are rows in the table
     cursor.execute("SELECT NULL FROM rings")
     if cursor.fetchall() == []:
+        # If not insert default values
         cursor.execute("""
             INSERT INTO rings VALUES
-                ("Short",  2 ),
+                ("Short",  3 ),
                 ("Medium", 5 ),
                 ("Long",   10)
         """)

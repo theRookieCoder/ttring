@@ -5,11 +5,12 @@ from mysql.connector.cursor import MySQLCursor
 from threading import Timer
 from datetime import datetime, timedelta, time
 
-
 logging.basicConfig(
-    level="NOTSET", format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
+    level="NOTSET",
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(markup=True)],
 )
-
 log = logging.getLogger("ttring")
 
 
@@ -22,7 +23,7 @@ def serve(cursor: MySQLCursor, id: int):
     start_time: datetime = (
         datetime.combine(datetime.now(), time(hour=0, minute=0)) + row[1]
     )
-    logging.info(f"Schedule {schedule_name} starting at {start_time}")
+    logging.info(f"Schedule [bold]{schedule_name}[/bold] starting at {start_time}")
 
     cursor.execute(
         """SELECT periods.period_name, periods.duration, rings.duration
@@ -45,18 +46,26 @@ def serve(cursor: MySQLCursor, id: int):
     for i, (name, period_dur, ring_dur) in enumerate(
         [("Starting", 0, max_ring)] + periods
     ):
+        if type(ring_dur) is tuple:
+            ring_dur = ring_dur[0]
         time_acc += timedelta(minutes=period_dur)
         if datetime.now() < time_acc:
-            del_t: timedelta = datetime.now() - time_acc
+            del_t: timedelta = time_acc - datetime.now()
+            try:
+                ring_dur = max(ring_dur, periods[i + 2][2])
+            except IndexError:
+                pass
             timers.append(
                 Timer(
                     del_t.total_seconds(),
                     ring,
-                    max(ring_dur, periods[i + 1][2] or 0),
-                    name,
+                    [ring_dur, name],
                 )
             )
-            logging.info(f"Registered {timers[-1]}")
+            timers[-1].start()
+            logging.info(
+                f"Registered {timers[-1]} for [bold]{name}[/bold] to ring in {del_t.total_seconds()} s"
+            )
         else:
             logging.warning(f"Time already passed for {name} at {time_acc}")
 
@@ -64,7 +73,7 @@ def serve(cursor: MySQLCursor, id: int):
         logging.error("No timers were registered")
         return
 
-    sleep((datetime.now() - time_acc).total_seconds() + 5)
+    sleep((time_acc - datetime.now()).total_seconds() + 5)
 
 
 def ring(time_s: int, name: str):
