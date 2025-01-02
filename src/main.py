@@ -3,6 +3,7 @@ from mysql.connector.cursor import MySQLCursor
 from survey import routines as tui
 from survey._widgets import Escape
 import os
+from colorama import just_fix_windows_console
 from rich import print
 
 import init_db
@@ -104,6 +105,7 @@ def pick_schedule() -> int | None:
 
 
 if __name__ == "__main__":
+    just_fix_windows_console()
     main()
     db.close()
     print("Bye.")
